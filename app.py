@@ -86,6 +86,9 @@ def summarize_article():
 
     return send_file('text_overlayed.jpg', mimetype='image/gif')
 
+@app.route('/api/get-image', methods=['POST', 'GET'])
+def get_image():
+    return send_file('text_overlayed.jpg', mimetype='image/gif')
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
