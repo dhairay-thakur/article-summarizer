@@ -1,19 +1,23 @@
-import React, {useState} from 'react';
-import {StyleSheet, View, Button, Text, TextInput, Image} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  StyleSheet,
+  View,
+  Button,
+  Text,
+  TextInput,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
 import axios from 'axios';
-import Share from 'react-native-share';
+import RNStoryShare from 'react-native-story-share';
 
 const App = props => {
   const [url, setUrl] = useState('');
   const [imageUri, setImageUri] = useState('');
 
-  const shareOptions = {
-    method: Share.InstagramStories.SHARE_BACKGROUND_IMAGE,
-    backgroundImage: imageUri,
-    backgroundBottomColor: '#fefefe',
-    backgroundTopColor: '#906df4',
-    social: Share.Social.INSTAGRAM_STORIES,
-  };
+  useEffect(() => {
+    setImageUri('https://article-summarize.herokuapp.com/api/get-image');
+  }, []);
 
   const handleSubmit = () => {
     console.log(url);
@@ -23,7 +27,11 @@ const App = props => {
       })
       .then(function (response) {
         // handle success
-        setImageUri('http://192.168.43.210:5000/api/get-image');
+        fetch(
+          'https://article-summarize.herokuapp.com/api/get-image',
+        ).then(() =>
+          setImageUri('https://article-summarize.herokuapp.com/api/get-image'),
+        );
       })
       .catch(function (error) {
         // handle error
@@ -32,31 +40,41 @@ const App = props => {
   };
 
   const handleShare = () => {
-    Share.shareSingle(shareOptions)
-      .then(res => {
-        console.log(res);
+    RNStoryShare.isInstagramAvailable()
+      .then(isAvailable => {
+        if (isAvailable) {
+          RNStoryShare.shareToInstagram({
+            type: RNStoryShare.FILE, // or RNStoryShare.FILE
+            backgroundAsset: imageUri,
+            backgroundBottomColor: '#f44162',
+            backgroundTopColor: '#f4a142',
+          });
+        }
       })
-      .catch(err => {
-        err && console.log(err);
-      });
+      .catch(e => console.log(e));
+  };
+
+  const handleReset = () => {
+    setImageUri('');
+    setUrl('');
   };
 
   return (
     <View style={styles.background}>
       {imageUri === '' && (
         <TextInput
+          placeholder="Link to the Article"
+          placeholderTextColor="#1f2833"
+          selectionColor="#66fcf1"
           style={styles.textInput}
           onChangeText={text => setUrl(text)}
         />
       )}
       {imageUri === '' && (
-        <Button
-          style={styles.button}
-          title="Generate Summary"
-          onPress={handleSubmit}
-        />
+        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+          <Text style={styles.btnText}>Generate Summary</Text>
+        </TouchableOpacity>
       )}
-
       {imageUri !== '' && (
         <Image style={styles.image} source={{uri: imageUri}} />
       )}
@@ -64,7 +82,14 @@ const App = props => {
         <Image style={styles.noImage} source={require('./no-results.png')} />
       )}
       {imageUri !== '' && (
-        <Button style={styles.button} title="Share" onPress={handleShare} />
+        <TouchableOpacity style={styles.button} onPress={handleShare}>
+          <Text style={styles.btnText}>Share Story</Text>
+        </TouchableOpacity>
+      )}
+      {imageUri !== '' && (
+        <TouchableOpacity style={styles.button} onPress={handleReset}>
+          <Text style={styles.btnText}>Reset</Text>
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -72,17 +97,19 @@ const App = props => {
 
 const styles = StyleSheet.create({
   background: {
-    backgroundColor: 'white',
+    backgroundColor: '#1f2833',
     padding: 20,
     flex: 1,
     alignItems: 'center',
   },
   textInput: {
+    width: 300,
     borderWidth: 1,
-    borderRadius: 20,
     paddingHorizontal: 10,
+    borderRadius: 50,
     marginVertical: 10,
-    backgroundColor: 'blue',
+    color: '#0b0c10',
+    backgroundColor: '#c5c6c7',
   },
   noImage: {
     marginVertical: 100,
@@ -92,12 +119,21 @@ const styles = StyleSheet.create({
   image: {
     marginVertical: 10,
     width: '100%',
-    height: '80%',
+    height: '75%',
   },
   button: {
-    marginVertical: 10,
-    borderRadius: 20,
-    backgroundColor: 'black',
+    width: 250,
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: '#66fcf1',
+    padding: 15,
+    borderRadius: 50,
+  },
+  btnText: {
+    color: '#66fcf1',
+    fontSize: 18,
+    justifyContent: 'center',
+    textAlign: 'center',
   },
 });
 

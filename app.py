@@ -1,5 +1,5 @@
 import os
-
+import uuid
 import requests
 from flask import Flask, request, send_file
 from newspaper import Article
@@ -82,13 +82,22 @@ def summarize_article():
                        width=caption_width, left=margin_left,
                        top=margin_top)
         canvas.format = "jpg"
-        canvas.save(filename='text_overlayed.jpg')
+        unique_name = str(uuid.uuid4())
+        canvas.save(filename=f'{unique_name}.jpg')
 
-    return send_file('text_overlayed.jpg', mimetype='image/gif')
+    return {'imageId': unique_name}
 
-@app.route('/api/get-image', methods=['POST', 'GET'])
-def get_image():
-    return send_file('text_overlayed.jpg', mimetype='image/gif')
+
+@app.route('/api/get-image/<id>', methods=['POST', 'GET'])
+def get_image(id):
+    return send_file(f'{id}.jpg', mimetype='image/gif')
+
+
+@app.route('/api/remove-image/<id>', methods=['GET', 'POST'])
+def remove_img(id):
+    os.remove(f'{id}.jpg')
+    return {'deleted-file': id}
+
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))

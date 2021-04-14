@@ -12,6 +12,8 @@ target 'ArticleSummarizer' do
     :hermes_enabled => false
   )
 
+  pod 'RNStoryShare', :path => '../node_modules/react-native-story-share'
+
   target 'ArticleSummarizerTests' do
     inherit! :complete
     # Pods for testing
