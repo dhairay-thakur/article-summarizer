@@ -13,11 +13,7 @@ import RNStoryShare from 'react-native-story-share';
 
 const App = props => {
   const [url, setUrl] = useState('');
-  const [imageUri, setImageUri] = useState('');
-
-  useEffect(() => {
-    setImageUri('https://article-summarize.herokuapp.com/api/get-image');
-  }, []);
+  const [imageId, setImageId] = useState('');
 
   const handleSubmit = () => {
     console.log(url);
@@ -27,11 +23,7 @@ const App = props => {
       })
       .then(function (response) {
         // handle success
-        fetch(
-          'https://article-summarize.herokuapp.com/api/get-image',
-        ).then(() =>
-          setImageUri('https://article-summarize.herokuapp.com/api/get-image'),
-        );
+        setImageId('https://article-summarize.herokuapp.com/api/get-image');
       })
       .catch(function (error) {
         // handle error
@@ -45,7 +37,7 @@ const App = props => {
         if (isAvailable) {
           RNStoryShare.shareToInstagram({
             type: RNStoryShare.FILE, // or RNStoryShare.FILE
-            backgroundAsset: imageUri,
+            backgroundAsset: imageId,
             backgroundBottomColor: '#f44162',
             backgroundTopColor: '#f4a142',
           });
@@ -55,13 +47,13 @@ const App = props => {
   };
 
   const handleReset = () => {
-    setImageUri('');
+    setImageId('');
     setUrl('');
   };
 
   return (
     <View style={styles.background}>
-      {imageUri === '' && (
+      {imageId === '' && (
         <TextInput
           placeholder="Link to the Article"
           placeholderTextColor="#1f2833"
@@ -70,23 +62,21 @@ const App = props => {
           onChangeText={text => setUrl(text)}
         />
       )}
-      {imageUri === '' && (
+      {imageId === '' && (
         <TouchableOpacity style={styles.button} onPress={handleSubmit}>
           <Text style={styles.btnText}>Generate Summary</Text>
         </TouchableOpacity>
       )}
-      {imageUri !== '' && (
-        <Image style={styles.image} source={{uri: imageUri}} />
-      )}
-      {imageUri === '' && (
+      {imageId !== '' && <Image style={styles.image} source={{uri: imageId}} />}
+      {imageId === '' && (
         <Image style={styles.noImage} source={require('./no-results.png')} />
       )}
-      {imageUri !== '' && (
+      {imageId !== '' && (
         <TouchableOpacity style={styles.button} onPress={handleShare}>
           <Text style={styles.btnText}>Share Story</Text>
         </TouchableOpacity>
       )}
-      {imageUri !== '' && (
+      {imageId !== '' && (
         <TouchableOpacity style={styles.button} onPress={handleReset}>
           <Text style={styles.btnText}>Reset</Text>
         </TouchableOpacity>
