@@ -1,8 +1,7 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
   StyleSheet,
   View,
-  Button,
   Text,
   TextInput,
   Image,
@@ -11,19 +10,35 @@ import {
 import axios from 'axios';
 import RNStoryShare from 'react-native-story-share';
 
+const BASE_URL = 'https://article-summarize.herokuapp.com/api';
+
 const App = props => {
   const [url, setUrl] = useState('');
-  const [imageId, setImageId] = useState('');
+  const [imageId, setImageId] = useState(null);
+
+  const deleteImage = () => {
+    axios
+      .post(`${BASE_URL}/remove-image/${imageId}`)
+      .then(function (response) {
+        // handle success
+        console.log(response.data);
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error.message);
+      });
+  };
 
   const handleSubmit = () => {
     console.log(url);
     axios
-      .post('https://article-summarize.herokuapp.com/api', {
+      .post(BASE_URL, {
         url,
       })
       .then(function (response) {
         // handle success
-        setImageId('https://article-summarize.herokuapp.com/api/get-image');
+        console.log(response.data.imageId);
+        setImageId(response.data.imageId);
       })
       .catch(function (error) {
         // handle error
@@ -47,13 +62,14 @@ const App = props => {
   };
 
   const handleReset = () => {
-    setImageId('');
+    deleteImage();
+    setImageId(null);
     setUrl('');
   };
 
   return (
     <View style={styles.background}>
-      {imageId === '' && (
+      {!imageId && (
         <TextInput
           placeholder="Link to the Article"
           placeholderTextColor="#1f2833"
@@ -62,21 +78,26 @@ const App = props => {
           onChangeText={text => setUrl(text)}
         />
       )}
-      {imageId === '' && (
+      {!imageId && (
         <TouchableOpacity style={styles.button} onPress={handleSubmit}>
           <Text style={styles.btnText}>Generate Summary</Text>
         </TouchableOpacity>
       )}
-      {imageId !== '' && <Image style={styles.image} source={{uri: imageId}} />}
-      {imageId === '' && (
+      {imageId && (
+        <Image
+          style={styles.image}
+          source={{uri: `${BASE_URL}/get-image/${imageId}`}}
+        />
+      )}
+      {!imageId && (
         <Image style={styles.noImage} source={require('./no-results.png')} />
       )}
-      {imageId !== '' && (
+      {imageId && (
         <TouchableOpacity style={styles.button} onPress={handleShare}>
           <Text style={styles.btnText}>Share Story</Text>
         </TouchableOpacity>
       )}
-      {imageId !== '' && (
+      {imageId && (
         <TouchableOpacity style={styles.button} onPress={handleReset}>
           <Text style={styles.btnText}>Reset</Text>
         </TouchableOpacity>
