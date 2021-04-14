@@ -52,13 +52,13 @@ const App = props => {
         if (isAvailable) {
           RNStoryShare.shareToInstagram({
             type: RNStoryShare.FILE, // or RNStoryShare.FILE
-            backgroundAsset: imageId,
+            backgroundAsset: `${BASE_URL}/get-image/${imageId}`,
             backgroundBottomColor: '#f44162',
             backgroundTopColor: '#f4a142',
           });
         }
       })
-      .catch(e => console.log(e));
+      .catch(e => console.log('Error While Sharing - ', e));
   };
 
   const handleReset = () => {
